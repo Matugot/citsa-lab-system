@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CITSA — Sistema de Gestión de Presupuestos</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3248;
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --sidebar-w: 220px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 20px 0; position: fixed; height: 100vh; z-index: 10;
+    }
+    .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .sidebar-logo h1 { font-size: 20px; font-weight: 700; color: var(--primary-light); letter-spacing: 2px; }
+    .sidebar-logo span { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer;
+      color: var(--muted); font-size: 13.5px; border-left: 3px solid transparent; transition: all .15s;
+    }
+    .nav-item:hover { color: var(--text); background: var(--surface2); }
+    .nav-item.active { color: var(--primary-light); border-left-color: var(--primary); background: rgba(99,102,241,.08); }
+    .nav-icon { width: 16px; text-align: center; }
+    .nav-section { font-size: 10px; color: var(--muted); padding: 16px 20px 4px; letter-spacing: 1px; text-transform: uppercase; }
+    .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
+    .user-chip { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+    .user-info { font-size: 12px; }
+    .user-info strong { display: block; }
+    .user-info span { color: var(--muted); }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5;
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+    .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; margin-right: 6px; }
+    .content { padding: 28px; flex: 1; }
+
+    /* ── PAGE SECTIONS ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── STATS GRID ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .stat-value { font-size: 26px; font-weight: 700; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .stat-up { color: var(--success); }
+    .stat-down { color: var(--danger); }
+
+    /* ── CHARTS ROW ── */
+    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    thead th { text-align: left; padding: 10px 14px; color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; cursor: pointer; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td { padding: 12px 14px; }
+    .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .status-aprobado { background: rgba(34,197,94,.15); color: #4ade80; }
+    .status-enviado { background: rgba(99,102,241,.15); color: #a5b4fc; }
+    .status-borrador { background: rgba(148,163,184,.1); color: var(--muted); }
+    .status-rechazado { background: rgba(239,68,68,.12); color: #f87171; }
+
+    /* ── BUTTONS ── */
+    .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all .15s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #5254cc; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── AI ANALYZER ── */
+    .ai-box { background: var(--surface2); border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 20px; transition: border-color .2s; cursor: pointer; }
+    .ai-box:hover { border-color: var(--primary); }
+    .ai-box .icon { font-size: 40px; margin-bottom: 12px; }
+    .ai-box h3 { font-size: 16px; margin-bottom: 6px; }
+    .ai-box p { color: var(--muted); font-size: 13px; }
+    .ai-result { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .ai-result-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .ai-result-item:last-child { border-bottom: none; }
+    .ai-result-name { font-size: 13.5px; font-weight: 500; }
+    .ai-result-reason { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .ai-result-price { font-size: 14px; font-weight: 700; color: var(--primary-light); }
+    .ai-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border); font-weight: 700; font-size: 16px; }
+    .ai-tag { background: rgba(99,102,241,.15); color: var(--primary-light); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-left: 8px; }
+
+    /* ── LOADING ── */
+    .loading-bar { height: 3px; background: linear-gradient(90deg, transparent, var(--primary), transparent); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 2px; margin: 12px 0; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .thinking { color: var(--muted); font-size: 13px; text-align: center; padding: 20px; }
+    .thinking span { color: var(--primary-light); }
+
+    /* ── MISC ── */
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .text-muted { color: var(--muted); font-size: 13px; }
+    .demo-banner { background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.3); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--primary-light); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+
+    /* ── DONUT ── */
+    .donut-wrap { display: flex; align-items: center; gap: 20px; }
+    .donut-legend { flex: 1; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 12.5px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Budget detail modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:100; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; width:560px; max-height:85vh; overflow-y:auto; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .modal-title { font-size:17px; font-weight:700; }
+    .close-btn { background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; }
+    .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:13.5px; }
+    .modal-row:last-child { border:none; }
+    .modal-total { font-size:17px; font-weight:700; color:var(--primary-light); margin-top:12px; text-align:right; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>CITSA</h1>
+    <span>Sistema de Gestión</span>
+  </div>
+
+  <div class="nav-section">Principal</div>
+  <div class="nav-item active" onclick="showPage('dashboard')">
+    <span class="nav-icon">📊</span> Dashboard
+  </div>
+  <div class="nav-item" onclick="showPage('presupuestos')">
+    <span class="nav-icon">📄</span> Presupuestos
+  </div>
+  <div class="nav-item" onclick="showPage('clientes')">
+    <span class="nav-icon">👥</span> Clientes
+  </div>
+  <div class="nav-item" onclick="showPage('servicios')">
+    <span class="nav-icon">🧪</span> Servicios
+  </div>
+
+  <div class="nav-section">IA</div>
+  <div class="nav-item" onclick="showPage('analizador')">
+    <span class="nav-icon">🤖</span> Analizador IA
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar">MG</div>
+      <div class="user-info">
+        <strong>Mateo Gotelli</strong>
+        <span>Administrador</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Dashboard</span>
+    <div class="topbar-actions">
+      <span style="font-size:12px;color:var(--muted)"><span class="badge-dot"></span>Sistema activo</span>
+      <button class="btn btn-primary" onclick="showPage('analizador')">+ Nuevo Presupuesto</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DEMO BANNER -->
+    <div class="demo-banner">
+      🔬 <strong>Demo interactiva</strong> — Navegá el sistema usando el menú lateral. Esta es una versión de demostración con datos de ejemplo.
+    </div>
+
+    <!-- ════════════════ DASHBOARD ════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Clientes Activos <span>👥</span></div>
+          <div class="stat-value">147</div>
+          <div class="stat-sub stat-up">▲ 12 este mes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Servicios en Catálogo <span>🧪</span></div>
+          <div class="stat-value">312</div>
+          <div class="stat-sub" style="color:var(--muted)">Analitos disponibles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Presupuestos Aprobados <span>✅</span></div>
+          <div class="stat-value">38</div>
+          <div class="stat-sub stat-up">▲ 8% vs mes anterior</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Valor Total Aprobado <span>💰</span></div>
+          <div class="stat-value" style="color:var(--primary-light)">$2.84M</div>
+          <div class="stat-sub stat-up">▲ $340K este mes</div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-title">Ingresos Mensuales (ARS)</div>
+          <canvas id="revenueChart" height="100"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title">Estado de Presupuestos</div>
+          <div class="donut-wrap">
+            <canvas id="statusChart" width="140" height="140"></canvas>
+            <div class="donut-legend">
+              <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>Aprobados: 38</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span>Enviados: 21</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#94a3b8"></span>Borradores: 14</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Rechazados: 5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-4">
+          <div class="card-title" style="margin-bottom:0">Actividad Reciente</div>
+          <button class="btn btn-ghost" onclick="showPage('presupuestos')">Ver todos →</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th>
+            </tr></thead>
+            <tbody id="recent-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PRESUPUESTOS ════════════════ -->
+    <div class="page" id="page-presupuestos">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 style="font-size:18px;font-weight:700">Presupuestos</h2>
+          <p class="text-muted">78 presupuestos en total</p>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('analizador')">+ Nuevo con IA</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Cliente</th><th>Referencia</th><th>Fecha</th><th>Estado</th><th>Descuento</th><th>Total</th>
+            </tr></thead>
+            <tbody id="full-budget-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ CLIENTES ════════════════ -->
+    <div class="page" id="page-clientes">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 style="font-size:18px;font-weight:700">Clientes</h2>
+          <p class="text-muted">147 clientes registrados</p>
+        </div>
+        <button class="btn btn-primary">+ Nuevo Cliente</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Nombre</th><th>CUIT</th><th>Email</th><th>Teléfono</th><th>Presupuestos</th><th>Valor Total</th>
+            </tr></thead>
+            <tbody id="clients-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ SERVICIOS ════════════════ -->
+    <div class="page" id="page-servicios">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 style="font-size:18px;font-weight:700">Catálogo de Servicios</h2>
+          <p class="text-muted">312 analitos disponibles</p>
+        </div>
+        <button class="btn btn-ghost">Exportar CSV</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Analito</th><th>Matriz</th><th>Método</th><th>Precio Unit.</th>
+            </tr></thead>
+            <tbody id="services-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ ANALIZADOR IA ════════════════ -->
+    <div class="page" id="page-analizador">
+      <div class="mb-6">
+        <h2 style="font-size:18px;font-weight:700">Analizador de Documentos IA</h2>
+        <p class="text-muted">Subí un PDF de licitación o especificación técnica y la IA identifica los servicios requeridos</p>
+      </div>
+
+      <div id="upload-area" class="ai-box" onclick="startAnalysis()">
+        <div class="icon">📄</div>
+        <h3>Arrastrá un PDF o hacé click para seleccionar</h3>
+        <p>El sistema analizará el documento y generará el presupuesto automáticamente</p>
+        <br>
+        <button class="btn btn-primary" onclick="startAnalysis()">🤖 Analizar con IA</button>
+      </div>
+
+      <div id="loading-area" style="display:none" class="card">
+        <div class="thinking">🤖 <span>Claude AI</span> está leyendo el documento...</div>
+        <div class="loading-bar"></div>
+        <div class="loading-bar" style="animation-delay:.3s"></div>
+        <div class="loading-bar" style="animation-delay:.6s"></div>
+        <div class="thinking" id="loading-step">Identificando analitos requeridos...</div>
+      </div>
+
+      <div id="ai-result-area" style="display:none">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 style="font-size:15px;font-weight:700">✅ Análisis completado</h3>
+            <p class="text-muted" id="ai-client-hint"></p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost" onclick="resetAnalysis()">Nuevo análisis</button>
+            <button class="btn btn-primary">Crear Presupuesto</button>
+          </div>
+        </div>
+        <div class="ai-result">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+            SERVICIOS IDENTIFICADOS
+          </div>
+          <div id="ai-items"></div>
+          <div class="ai-total">
+            <span>Total estimado</span>
+            <span id="ai-total-value" style="color:var(--primary-light)"></span>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:14px;background:rgba(99,102,241,.07);border-radius:8px;font-size:12.5px;color:var(--muted)">
+          💡 <strong style="color:var(--text)">Nota sugerida por IA:</strong> <span id="ai-notes"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- BUDGET DETAIL MODAL -->
+<div class="modal-overlay" id="budget-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Presupuesto</span>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+
+const budgets = [
+  {id:'0042',client:'Municipalidad de Córdoba',ref:'LICIT-2024-118',date:'28/04/2026',status:'aprobado',discount:5,total:284500},
+  {id:'0041',client:'Aguas Rionegrinas SA',ref:'CONT-448',date:'26/04/2026',status:'enviado',discount:0,total:97800},
+  {id:'0040',client:'Dirección de Bromatología',ref:'ORDEN-891',date:'25/04/2026',status:'aprobado',discount:10,total:156200},
+  {id:'0039',client:'Universidad Nacional de Cuyo',ref:'EXP-2026-40',date:'23/04/2026',status:'borrador',discount:0,total:43600},
+  {id:'0038',client:'Planta Petroquímica Dock Sud',ref:'PO-2201',date:'21/04/2026',status:'enviado',discount:0,total:212400},
+  {id:'0037',client:'INTA Balcarce',ref:'EXP-INTA-77',date:'18/04/2026',status:'aprobado',discount:15,total:88300},
+  {id:'0036',client:'Frigorífico Mattievich',ref:'CTRL-MENS-APR',date:'17/04/2026',status:'aprobado',discount:5,total:67500},
+  {id:'0035',client:'Secretaría de Ambiente Nación',ref:'LICIT-2026-03',date:'15/04/2026',status:'rechazado',discount:0,total:430000},
+  {id:'0034',client:'Cervecería y Maltería Quilmes',ref:'QC-ABRIL',date:'14/04/2026',status:'aprobado',discount:8,total:124700},
+  {id:'0033',client:'Hospital Posadas',ref:'CONC-2026-11',date:'11/04/2026',status:'enviado',discount:0,total:58900},
+];
+
+const clients = [
+  {name:'Municipalidad de Córdoba',cuit:'30-99887766-4',email:'compras@muni-cordoba.gov.ar',tel:'0351-420-0000',budgets:8,total:1240500},
+  {name:'Aguas Rionegrinas SA',cuit:'30-71234567-9',email:'lab@aguasrn.com.ar',tel:'0294-442-1100',budgets:12,total:876300},
+  {name:'Dirección de Bromatología',cuit:'30-54321098-7',email:'broma@mendoza.gov.ar',tel:'0261-449-0800',budgets:5,total:542000},
+  {name:'Universidad Nacional de Cuyo',cuit:'30-54605426-0',email:'laboratorio@uncu.edu.ar',tel:'0261-413-5000',budgets:15,total:421800},
+  {name:'INTA Balcarce',cuit:'30-56696268-2',email:'analisis@inta.gob.ar',tel:'02266-43-9100',budgets:21,total:389600},
+  {name:'Frigorífico Mattievich',cuit:'30-57821044-1',email:'calidad@mattievich.com.ar',tel:'011-4256-8800',budgets:48,total:2187400},
+  {name:'Secretaría de Ambiente',cuit:'30-71500034-1',email:'labs@ambiente.gob.ar',tel:'011-4131-3800',budgets:3,total:1290000},
+  {name:'Hospital Posadas',cuit:'30-54678901-3',email:'laboratorio@posadas.gov.ar',tel:'011-4654-6100',budgets:9,total:312700},
+];
+
+const services = [
+  {name:'Plomo (Pb)',matrix:'Agua potable',method:'EPA 200.8 / ICP-MS',price:8400},
+  {name:'Cadmio (Cd)',matrix:'Agua potable',method:'EPA 200.8 / ICP-MS',price:8400},
+  {name:'Arsénico (As)',matrix:'Agua potable',method:'EPA 200.8 / ICP-MS',price:9200},
+  {name:'Mercurio (Hg)',matrix:'Agua potable',method:'EPA 245.1 / CVAAS',price:11500},
+  {name:'Nitratos',matrix:'Agua',method:'SMEWW 4500-NO3',price:4200},
+  {name:'Coliformes totales',matrix:'Agua',method:'SMEWW 9222B',price:5800},
+  {name:'Coliformes fecales',matrix:'Agua',method:'SMEWW 9222D',price:6200},
+  {name:'DBO5',matrix:'Efluente',method:'SMEWW 5210B',price:7300},
+  {name:'DQO',matrix:'Efluente',method:'SMEWW 5220C',price:6800},
+  {name:'Plaguicidas organoclorados',matrix:'Suelo',method:'EPA 8081A / GC-ECD',price:24600},
+  {name:'Hidrocarburos totales (TPH)',matrix:'Suelo',method:'EPA 8015D',price:18900},
+  {name:'PCBs totales',matrix:'Aceite',method:'EPA 8082A / GC-ECD',price:32400},
+  {name:'Aflatoxinas B1+B2+G1+G2',matrix:'Alimento',method:'HPLC-FLD',price:14800},
+  {name:'Plaguicidas (multiresiduos)',matrix:'Alimento',method:'QuEChERS / GC-MS/MS',price:28700},
+  {name:'Cromo hexavalente',matrix:'Agua',method:'SMEWW 3500-Cr',price:9800},
+];
+
+const aiMockResult = {
+  client: 'Municipalidad de San Carlos de Bariloche — Secretaría de Obras Públicas',
+  notes: 'Análisis correspondientes a Licitación Pública N° 12/2026 — Monitoreo Calidad de Aguas Superficiales. Se incluyen parámetros físico-químicos y microbiológicos según Ley 25688.',
+  items: [
+    {name:'Plomo (Pb)',matrix:'Agua',qty:3,price:8400,reason:'Mencionado explícitamente como "metales pesados — plomo" en Art. 4.2'},
+    {name:'Arsénico (As)',matrix:'Agua',qty:3,price:9200,reason:'Requerido por normativa Ley 25688 para aguas superficiales'},
+    {name:'Coliformes totales',matrix:'Agua',qty:6,price:5800,reason:'Parámetro microbiológico obligatorio, 6 puntos de muestreo'},
+    {name:'Coliformes fecales',matrix:'Agua',qty:6,price:6200,reason:'Parámetro microbiológico obligatorio complementario'},
+    {name:'Nitratos',matrix:'Agua',qty:3,price:4200,reason:'Incluido en "parámetros nutrientes" del pliego'},
+    {name:'DBO5',matrix:'Efluente',qty:2,price:7300,reason:'Requerido para puntos de descarga de efluentes industriales'},
+  ]
+};
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+
+function statusBadge(s) {
+  const map = {aprobado:'status-aprobado',enviado:'status-enviado',borrador:'status-borrador',rechazado:'status-rechazado'};
+  return `<span class="status-badge ${map[s]||'status-borrador'}">${s.toUpperCase()}</span>`;
+}
+
+function fmt(n) { return '$' + n.toLocaleString('es-AR'); }
+
+function renderRecentTable() {
+  const tbody = document.getElementById('recent-table');
+  tbody.innerHTML = budgets.slice(0,6).map(b => `
+    <tr onclick="openBudget('${b.id}')">
+      <td><strong>#${b.id}</strong></td>
+      <td>${b.client}</td>
+      <td style="color:var(--muted)">${b.date}</td>
+      <td>${statusBadge(b.status)}</td>
+      <td><strong>${fmt(b.total)}</strong></td>
+    </tr>`).join('');
+}
+
+function renderFullBudgetTable() {
+  const tbody = document.getElementById('full-budget-table');
+  tbody.innerHTML = budgets.map(b => `
+    <tr onclick="openBudget('${b.id}')">
+      <td><strong>#${b.id}</strong></td>
+      <td>${b.client}</td>
+      <td style="color:var(--muted);font-size:12px">${b.ref}</td>
+      <td style="color:var(--muted)">${b.date}</td>
+      <td>${statusBadge(b.status)}</td>
+      <td style="color:var(--muted)">${b.discount ? b.discount+'%' : '—'}</td>
+      <td><strong>${fmt(b.total)}</strong></td>
+    </tr>`).join('');
+}
+
+function renderClientsTable() {
+  const tbody = document.getElementById('clients-table');
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td style="color:var(--muted);font-size:12px">${c.cuit}</td>
+      <td style="color:var(--muted)">${c.email}</td>
+      <td style="color:var(--muted)">${c.tel}</td>
+      <td style="text-align:center">${c.budgets}</td>
+      <td><strong style="color:var(--primary-light)">${fmt(c.total)}</strong></td>
+    </tr>`).join('');
+}
+
+function renderServicesTable() {
+  const tbody = document.getElementById('services-table');
+  tbody.innerHTML = services.map(s => `
+    <tr>
+      <td><strong>${s.name}</strong></td>
+      <td><span class="status-badge status-enviado">${s.matrix}</span></td>
+      <td style="color:var(--muted);font-size:12px">${s.method}</td>
+      <td><strong>${fmt(s.price)}</strong></td>
+    </tr>`).join('');
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+
+function initCharts() {
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Nov','Dic','Ene','Feb','Mar','Abr'],
+      datasets: [{
+        label: 'Ingresos ARS',
+        data: [380000, 510000, 290000, 620000, 480000, 720000],
+        backgroundColor: 'rgba(99,102,241,.7)',
+        borderRadius: 6,
+      },{
+        label: 'Presupuestado',
+        data: [420000, 490000, 350000, 580000, 500000, 680000],
+        backgroundColor: 'rgba(148,163,184,.15)',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#2e3248' } },
+        y: { ticks: { color: '#94a3b8', callback: v => '$'+v.toLocaleString() }, grid: { color: '#2e3248' } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Aprobados','Enviados','Borradores','Rechazados'],
+      datasets: [{ data: [38,21,14,5], backgroundColor: ['#22c55e','#6366f1','#475569','#ef4444'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { display: false } }, cutout: '70%' }
+  });
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+
+const pageTitles = { dashboard:'Dashboard', presupuestos:'Presupuestos', clientes:'Clientes', servicios:'Catálogo de Servicios', analizador:'Analizador de Documentos IA' };
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('page-title').textContent = pageTitles[id];
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes("'"+id+"'")) n.classList.add('active');
+  });
+}
+
+// ── BUDGET MODAL ──────────────────────────────────────────────────────────
+
+function openBudget(id) {
+  const b = budgets.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('modal-title').textContent = `Presupuesto #${b.id}`;
+  const items = [
+    {name:'Plomo (Pb) × 3',price:25200},{name:'Arsénico (As) × 3',price:27600},
+    {name:'Coliformes totales × 6',price:34800},{name:'Nitratos × 3',price:12600}
+  ];
+  const rows = items.map(i => `<div class="modal-row"><span>${i.name}</span><strong>${fmt(i.price)}</strong></div>`).join('');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-row"><span style="color:var(--muted)">Cliente</span><strong>${b.client}</strong></div>
+    <div class="modal-row"><span style="color:var(--muted)">Referencia</span><span>${b.ref}</span></div>
+    <div class="modal-row"><span style="color:var(--muted)">Fecha</span><span>${b.date}</span></div>
+    <div class="modal-row"><span style="color:var(--muted)">Estado</span>${statusBadge(b.status)}</div>
+    <div style="margin:16px 0 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Servicios</div>
+    ${rows}
+    ${b.discount ? `<div class="modal-row"><span style="color:var(--muted)">Descuento</span><span style="color:var(--warning)">-${b.discount}%</span></div>` : ''}
+    <div class="modal-total">${fmt(b.total)}</div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-primary" style="flex:1">Exportar PDF</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+    </div>`;
+  document.getElementById('budget-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('budget-modal').classList.remove('open'); }
+
+// ── AI ANALYZER ───────────────────────────────────────────────────────────
+
+const steps = [
+  'Extrayendo texto del PDF...','Identificando analitos requeridos...','Comparando con catálogo de servicios...','Calculando cantidades y precios...','Generando nota descriptiva...'
+];
+
+function startAnalysis() {
+  document.getElementById('upload-area').style.display = 'none';
+  document.getElementById('loading-area').style.display = 'block';
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < steps.length) { document.getElementById('loading-step').textContent = steps[i++]; }
+    else { clearInterval(interval); showAiResult(); }
+  }, 700);
+}
+
+function showAiResult() {
+  document.getElementById('loading-area').style.display = 'none';
+  document.getElementById('ai-result-area').style.display = 'block';
+  const r = aiMockResult;
+  document.getElementById('ai-client-hint').textContent = '🏛️ Cliente detectado: ' + r.client;
+  document.getElementById('ai-notes').textContent = r.notes;
+  let total = 0;
+  document.getElementById('ai-items').innerHTML = r.items.map(item => {
+    const sub = item.qty * item.price;
+    total += sub;
+    return `<div class="ai-result-item">
+      <div>
+        <div class="ai-result-name">${item.name} <span class="ai-tag">${item.matrix}</span></div>
+        <div class="ai-result-reason">× ${item.qty} — ${item.reason}</div>
+      </div>
+      <div class="ai-result-price">${fmt(sub)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('ai-total-value').textContent = fmt(total);
+}
+
+function resetAnalysis() {
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('loading-area').style.display = 'none';
+  document.getElementById('ai-result-area').style.display = 'none';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderRecentTable();
+renderFullBudgetTable();
+renderClientsTable();
+renderServicesTable();
+initCharts();
+</script>
+</body>
+</html>
