@@ -1,61 +1,43 @@
 # Caso de Estudio — Sistema de Gestión CITSA
 
-**Cliente:** CITSA (Centro de Investigaciones Toxicológicas), Argentina  
-**Tipo:** Herramienta interna — Gestión de presupuestos y flujos de trabajo  
-**Estado:** ✅ En producción, en uso activo  
+**Cliente:** CITSA, el laboratorio de mi familia (Argentina)  
+**Tipo:** Herramienta interna — Gestión de muestras, presupuestos y documentación  
+**Estado:** ✅ En producción, se usa en el día a día  
 **Tiempo de desarrollo:** 5 días desde cero hasta el deploy  
 
 ---
 
-## El Problema
+## El Contexto
 
-CITSA es un centro de investigaciones toxicológicas que brinda servicios de análisis de laboratorio a municipios, organismos del Estado, universidades y empresas privadas de todo el país.
-
-Su proceso de presupuestación era completamente manual:
-- El personal revisaba documentos técnicos y licitaciones a mano
-- Buscaban manualmente cada análisis requerido en un catálogo de más de 300 servicios
-- Armaban las cotizaciones en planillas de Excel, línea por línea
-- El proceso completo llevaba **entre 1 y 2 horas por presupuesto**
-
-Con un alto volumen de solicitudes entrantes, esto consumía una parte significativa del tiempo productivo del equipo cada semana.
+CITSA es el laboratorio de mi familia. Necesitaba un sistema propio para ordenar el trabajo de todos los días: seguir las muestras, armar los presupuestos y dejar de hacer a mano la documentación repetitiva.
 
 ---
 
 ## La Solución
 
-Una aplicación web full-stack que automatiza todo el proceso — desde la recepción del documento hasta la cotización final.
+Una aplicación web full-stack que cubre la gestión de muestras, los presupuestos y la automatización de la documentación, y que se personaliza a las necesidades de cada empresa.
 
-La funcionalidad central: un **analizador de documentos con IA** que lee cualquier PDF (licitación, pliego técnico, normativa) y automáticamente:
-1. Identifica qué análisis toxicológicos se requieren
+Una de las funcionalidades es un **analizador de documentos con IA**: lee el pedido de análisis o la especificación técnica de un cliente (PDF) y:
+1. Identifica qué análisis se piden
 2. Los matchea contra el catálogo de servicios (incluso con nombres distintos)
 3. Detecta cantidades e información del cliente
-4. Genera un borrador de presupuesto completo en segundos
+4. Arma un borrador de presupuesto
 
-El personal solo revisa y aprueba — sin búsqueda manual.
+El personal revisa y aprueba cada presupuesto.
 
 ---
 
 ## Funcionalidades Desarrolladas
 
+- **Gestión de Muestras** — Seguimiento de las muestras dentro del laboratorio
 - **Analizador de Documentos IA** — Claude API lee PDFs y mapea los requerimientos al catálogo de servicios
 - **Gestión de Presupuestos** — Ciclo de vida completo: borrador → enviado → aprobado/rechazado, con descuentos y exportación a PDF
-- **Base de Clientes** — 390+ clientes importados, buscables, con historial completo de presupuestos
-- **Catálogo de Servicios** — 300+ análisis toxicológicos con precios, matrices y métodos de ensayo
-- **Dashboard Predictivo** — Tendencias de ingresos, tasas de conversión, KPIs mensuales
+- **Base de Clientes** — Buscable, con historial de presupuestos
+- **Catálogo de Servicios** — Análisis con precios, matrices y métodos de ensayo
+- **Dashboard** — Tendencias de ingresos, tasas de conversión, KPIs mensuales
 - **Autenticación por Roles** — Roles de administrador y operador, sesiones con JWT
-- **Notificaciones por Email** — Alertas automáticas para nuevos presupuestos y recuperación de contraseña
-- **Backups Automáticos** — Snapshots diarios de la base de datos enviados por email
-
----
-
-## Resultados
-
-| Métrica | Antes | Después |
-|---------|-------|---------|
-| Tiempo por presupuesto | ~2 horas | < 5 minutos |
-| Errores manuales | Frecuentes | Casi nulos |
-| Personas usando el sistema | 0 | 10 |
-| Tiempo de desarrollo y deploy | — | 5 días |
+- **Notificaciones por Email** — Alertas para nuevos presupuestos y recuperación de contraseña
+- **Backups Automáticos** — Copias diarias de la base de datos
 
 ---
 
@@ -67,7 +49,7 @@ El personal solo revisa y aprueba — sin búsqueda manual.
 | Backend | Node.js + TypeScript + Express |
 | Base de datos | PostgreSQL (Drizzle ORM) |
 | IA | Anthropic Claude API |
-| Deploy | Replit |
+| Demo | GitHub Pages |
 | Autenticación | JWT + bcrypt |
 
 ---

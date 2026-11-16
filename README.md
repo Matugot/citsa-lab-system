@@ -1,6 +1,6 @@
 # 🧪 CITSA — Sistema de Gestión de Presupuestos con IA
 
-**Demo interactiva** del sistema de gestión desarrollado para CITSA (Centro de Investigaciones Toxicológicas).
+**Demo interactiva** del sistema de gestión desarrollado para CITSA, el laboratorio de mi familia.
 
 🔗 **[Ver demo en vivo](https://matugot.github.io/citsa-lab-system)**
 
@@ -8,7 +8,7 @@
 
 ## ¿Qué hace este sistema?
 
-CITSA es el laboratorio de mi familia. El sistema cubre la gestión de muestras, los presupuestos y la automatización de la documentación; se usa en el día a día y se personaliza a las necesidades de cada empresa:
+El sistema cubre la gestión de muestras, los presupuestos y la automatización de la documentación; se usa en el día a día y se personaliza a las necesidades de cada empresa:
 
 - **Gestión de muestras**: seguimiento de cada muestra dentro del laboratorio
 - **Gestión de presupuestos**: CRUD completo con estados, descuentos, exportación PDF
