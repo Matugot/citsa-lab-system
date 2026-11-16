@@ -328,7 +328,7 @@
     <div class="page" id="page-analizador">
       <div class="mb-6">
         <h2 style="font-size:18px;font-weight:700">Analizador de Documentos IA</h2>
-        <p class="text-muted">Subí un PDF de licitación o especificación técnica y la IA identifica los servicios requeridos</p>
+        <p class="text-muted">Subí el pedido de análisis o la especificación técnica de un cliente (PDF) y la IA identifica los servicios requeridos</p>
       </div>
 
       <div id="upload-area" class="ai-box" onclick="startAnalysis()">
@@ -392,27 +392,27 @@
 // ── DATA ──────────────────────────────────────────────────────────────────
 
 const budgets = [
-  {id:'0042',client:'Municipalidad de Córdoba',ref:'LICIT-2024-118',date:'28/04/2026',status:'aprobado',discount:5,total:284500},
-  {id:'0041',client:'Aguas Rionegrinas SA',ref:'CONT-448',date:'26/04/2026',status:'enviado',discount:0,total:97800},
-  {id:'0040',client:'Dirección de Bromatología',ref:'ORDEN-891',date:'25/04/2026',status:'aprobado',discount:10,total:156200},
-  {id:'0039',client:'Universidad Nacional de Cuyo',ref:'EXP-2026-40',date:'23/04/2026',status:'borrador',discount:0,total:43600},
-  {id:'0038',client:'Planta Petroquímica Dock Sud',ref:'PO-2201',date:'21/04/2026',status:'enviado',discount:0,total:212400},
-  {id:'0037',client:'INTA Balcarce',ref:'EXP-INTA-77',date:'18/04/2026',status:'aprobado',discount:15,total:88300},
-  {id:'0036',client:'Frigorífico Mattievich',ref:'CTRL-MENS-APR',date:'17/04/2026',status:'aprobado',discount:5,total:67500},
-  {id:'0035',client:'Secretaría de Ambiente Nación',ref:'LICIT-2026-03',date:'15/04/2026',status:'rechazado',discount:0,total:430000},
-  {id:'0034',client:'Cervecería y Maltería Quilmes',ref:'QC-ABRIL',date:'14/04/2026',status:'aprobado',discount:8,total:124700},
-  {id:'0033',client:'Hospital Posadas',ref:'CONC-2026-11',date:'11/04/2026',status:'enviado',discount:0,total:58900},
+  {id:'0042',client:'Consorcio Ambiental Demo',ref:'PRES-2026-042',date:'28/04/2026',status:'aprobado',discount:5,total:284500},
+  {id:'0041',client:'Cooperativa de Agua Demo',ref:'PRES-2026-041',date:'26/04/2026',status:'enviado',discount:0,total:97800},
+  {id:'0040',client:'Alimentos Ejemplo SA',ref:'PRES-2026-040',date:'25/04/2026',status:'aprobado',discount:10,total:156200},
+  {id:'0039',client:'Bodega Ficticia SRL',ref:'PRES-2026-039',date:'23/04/2026',status:'borrador',discount:0,total:43600},
+  {id:'0038',client:'Petroquímica Ejemplo SA',ref:'PRES-2026-038',date:'21/04/2026',status:'enviado',discount:0,total:212400},
+  {id:'0037',client:'Agro Ensayo Demo SA',ref:'PRES-2026-037',date:'18/04/2026',status:'aprobado',discount:15,total:88300},
+  {id:'0036',client:'Frigorífico Demo SA',ref:'PRES-2026-036',date:'17/04/2026',status:'aprobado',discount:5,total:67500},
+  {id:'0035',client:'Química Modelo SA',ref:'PRES-2026-035',date:'15/04/2026',status:'rechazado',discount:0,total:430000},
+  {id:'0034',client:'Cervecería Ficticia SA',ref:'PRES-2026-034',date:'14/04/2026',status:'aprobado',discount:8,total:124700},
+  {id:'0033',client:'Lácteos de Prueba SRL',ref:'PRES-2026-033',date:'11/04/2026',status:'enviado',discount:0,total:58900},
 ];
 
 const clients = [
-  {name:'Municipalidad de Córdoba',cuit:'30-99887766-4',email:'compras@muni-cordoba.gov.ar',tel:'0351-420-0000',budgets:8,total:1240500},
-  {name:'Aguas Rionegrinas SA',cuit:'30-71234567-9',email:'lab@aguasrn.com.ar',tel:'0294-442-1100',budgets:12,total:876300},
-  {name:'Dirección de Bromatología',cuit:'30-54321098-7',email:'broma@mendoza.gov.ar',tel:'0261-449-0800',budgets:5,total:542000},
-  {name:'Universidad Nacional de Cuyo',cuit:'30-54605426-0',email:'laboratorio@uncu.edu.ar',tel:'0261-413-5000',budgets:15,total:421800},
-  {name:'INTA Balcarce',cuit:'30-56696268-2',email:'analisis@inta.gob.ar',tel:'02266-43-9100',budgets:21,total:389600},
-  {name:'Frigorífico Mattievich',cuit:'30-57821044-1',email:'calidad@mattievich.com.ar',tel:'011-4256-8800',budgets:48,total:2187400},
-  {name:'Secretaría de Ambiente',cuit:'30-71500034-1',email:'labs@ambiente.gob.ar',tel:'011-4131-3800',budgets:3,total:1290000},
-  {name:'Hospital Posadas',cuit:'30-54678901-3',email:'laboratorio@posadas.gov.ar',tel:'011-4654-6100',budgets:9,total:312700},
+  {name:'Consorcio Ambiental Demo',cuit:'30-00000001-0',email:'consorcio@ejemplo.com',tel:'11 0000-0001',budgets:8,total:1240500},
+  {name:'Cooperativa de Agua Demo',cuit:'30-00000002-0',email:'cooperativa@ejemplo.com',tel:'11 0000-0002',budgets:12,total:876300},
+  {name:'Alimentos Ejemplo SA',cuit:'30-00000003-0',email:'alimentos@ejemplo.com',tel:'11 0000-0003',budgets:5,total:542000},
+  {name:'Bodega Ficticia SRL',cuit:'30-00000004-0',email:'bodega@ejemplo.com',tel:'11 0000-0004',budgets:15,total:421800},
+  {name:'Agro Ensayo Demo SA',cuit:'30-00000005-0',email:'agro@ejemplo.com',tel:'11 0000-0005',budgets:21,total:389600},
+  {name:'Frigorífico Demo SA',cuit:'30-00000006-0',email:'frigorifico@ejemplo.com',tel:'11 0000-0006',budgets:48,total:2187400},
+  {name:'Química Modelo SA',cuit:'30-00000007-0',email:'quimica@ejemplo.com',tel:'11 0000-0007',budgets:3,total:1290000},
+  {name:'Lácteos de Prueba SRL',cuit:'30-00000008-0',email:'lacteos@ejemplo.com',tel:'11 0000-0008',budgets:9,total:312700},
 ];
 
 const services = [
@@ -434,14 +434,14 @@ const services = [
 ];
 
 const aiMockResult = {
-  client: 'Municipalidad de San Carlos de Bariloche — Secretaría de Obras Públicas',
-  notes: 'Análisis correspondientes a Licitación Pública N° 12/2026 — Monitoreo Calidad de Aguas Superficiales. Se incluyen parámetros físico-químicos y microbiológicos según Ley 25688.',
+  client: 'Cooperativa de Agua Demo',
+  notes: 'Pedido de análisis del cliente — Monitoreo de calidad de aguas superficiales. Se incluyen parámetros físico-químicos y microbiológicos según Ley 25688.',
   items: [
-    {name:'Plomo (Pb)',matrix:'Agua',qty:3,price:8400,reason:'Mencionado explícitamente como "metales pesados — plomo" en Art. 4.2'},
+    {name:'Plomo (Pb)',matrix:'Agua',qty:3,price:8400,reason:'Mencionado explícitamente como "metales pesados — plomo" en el punto 4.2 del pedido'},
     {name:'Arsénico (As)',matrix:'Agua',qty:3,price:9200,reason:'Requerido por normativa Ley 25688 para aguas superficiales'},
     {name:'Coliformes totales',matrix:'Agua',qty:6,price:5800,reason:'Parámetro microbiológico obligatorio, 6 puntos de muestreo'},
     {name:'Coliformes fecales',matrix:'Agua',qty:6,price:6200,reason:'Parámetro microbiológico obligatorio complementario'},
-    {name:'Nitratos',matrix:'Agua',qty:3,price:4200,reason:'Incluido en "parámetros nutrientes" del pliego'},
+    {name:'Nitratos',matrix:'Agua',qty:3,price:4200,reason:'Incluido en "parámetros nutrientes" del pedido'},
     {name:'DBO5',matrix:'Efluente',qty:2,price:7300,reason:'Requerido para puntos de descarga de efluentes industriales'},
   ]
 };
@@ -607,7 +607,7 @@ function showAiResult() {
   document.getElementById('loading-area').style.display = 'none';
   document.getElementById('ai-result-area').style.display = 'block';
   const r = aiMockResult;
-  document.getElementById('ai-client-hint').textContent = '🏛️ Cliente detectado: ' + r.client;
+  document.getElementById('ai-client-hint').textContent = '🏢 Cliente detectado: ' + r.client;
   document.getElementById('ai-notes').textContent = r.notes;
   let total = 0;
   document.getElementById('ai-items').innerHTML = r.items.map(item => {

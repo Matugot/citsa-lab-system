@@ -1,61 +1,43 @@
 # Case Study — CITSA Laboratory Management System
 
-**Client:** CITSA (Centro de Investigaciones Toxicológicas), Argentina  
-**Type:** Internal tooling — Budget & workflow management  
-**Status:** ✅ In production, actively used  
+**Client:** CITSA, my family's laboratory (Argentina)  
+**Type:** Internal tooling — Sample, budget & documentation management  
+**Status:** ✅ In production, used day to day  
 **Timeline:** 5 days from zero to deployment  
 
 ---
 
-## The Problem
+## The Context
 
-CITSA is a toxicological research center that provides laboratory analysis services to municipalities, government agencies, universities, and private companies across Argentina.
-
-Their quotation process was fully manual:
-- Staff reviewed technical documents and public tenders by hand
-- Manually matched each required analysis against a catalog of 300+ services
-- Built quotes in spreadsheets, one line at a time
-- The entire process took **1–2 hours per quote**
-
-With a high volume of incoming requests, this was eating a significant portion of the team's productive time every week.
+CITSA is my family's laboratory. It needed its own system to organize the everyday work: tracking samples, building quotes, and no longer writing repetitive documentation by hand.
 
 ---
 
 ## The Solution
 
-A full-stack web application that automates the entire pipeline — from document intake to final quote.
+A full-stack web application that covers sample management, quotes, and documentation automation, and that is tailored to the needs of each business.
 
-The core feature: an **AI-powered document analyzer** that reads any PDF (tender, technical spec, regulation) and automatically:
-1. Identifies which toxicological analyses are required
+One of its features is an **AI-powered document analyzer**: it reads a client's analysis request or technical specification (PDF) and:
+1. Identifies which analyses are requested
 2. Matches them against the service catalog (even with different naming conventions)
 3. Detects quantities and client information
-4. Generates a complete budget draft in seconds
+4. Drafts a budget
 
-Staff just reviews and approves — no manual lookup required.
+Staff reviews and approves every budget.
 
 ---
 
 ## Key Features Built
 
+- **Sample Management** — Tracking samples inside the laboratory
 - **AI Document Analyzer** — Claude API reads PDFs and maps requirements to catalog services
 - **Budget Management** — Full lifecycle: draft → sent → approved/rejected, with discounts and PDF export
-- **Client Database** — 390+ clients imported, searchable, with full budget history
-- **Service Catalog** — 300+ toxicological analyses with pricing, matrices, and methods
-- **Predictive Dashboard** — Revenue trends, conversion rates, monthly KPIs
+- **Client Database** — Searchable, with budget history
+- **Service Catalog** — Analyses with pricing, matrices, and methods
+- **Dashboard** — Revenue trends, conversion rates, monthly KPIs
 - **Role-based Auth** — Admin and operator roles, JWT-based sessions
-- **Email Notifications** — Automated alerts for new budgets and password resets
-- **Automated Backups** — Daily database snapshots sent via email
-
----
-
-## Results
-
-| Metric | Before | After |
-|--------|--------|-------|
-| Time per quote | ~2 hours | < 5 minutes |
-| Manual errors | Frequent | Near zero |
-| Staff using system | 0 | 10 |
-| Time to build & deploy | — | 5 days |
+- **Email Notifications** — Alerts for new budgets and password resets
+- **Automated Backups** — Daily database copies
 
 ---
 
@@ -67,7 +49,7 @@ Staff just reviews and approves — no manual lookup required.
 | Backend | Node.js + TypeScript + Express |
 | Database | PostgreSQL (Drizzle ORM) |
 | AI | Anthropic Claude API |
-| Deploy | Replit |
+| Demo | GitHub Pages |
 | Auth | JWT + bcrypt |
 
 ---
