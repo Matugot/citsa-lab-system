@@ -8,14 +8,13 @@
 
 ## ¿Qué hace este sistema?
 
-CITSA gestionaba sus presupuestos manualmente — revisando licitaciones a mano y armando cotizaciones en planillas. Este sistema automatiza todo el proceso:
+CITSA es el laboratorio de mi familia. El sistema cubre la gestión de muestras, los presupuestos y la automatización de la documentación; se usa en el día a día y se personaliza a las necesidades de cada empresa:
 
-- **Analizador de documentos IA**: subís un PDF de licitación y Claude AI identifica automáticamente qué análisis toxicológicos se requieren, los matchea contra el catálogo y genera el presupuesto
+- **Gestión de muestras**: seguimiento de cada muestra dentro del laboratorio
 - **Gestión de presupuestos**: CRUD completo con estados, descuentos, exportación PDF
-- **Catálogo de servicios**: 300+ analitos con precios y métodos de ensayo
+- **Catálogo de servicios**: análisis con precios y métodos de ensayo
+- **Automatización de la documentación**: con apoyo de IA (Claude API) para leer documentos PDF
 - **Dashboard con analytics**: métricas de revenue, conversión, actividad reciente
-
-**Resultado**: reducción del tiempo de cotización de ~2 horas a menos de 5 minutos.
 
 ---
 
